@@ -28,7 +28,14 @@
         "symfony/string": "^7.4|^8.0"
     },
     "require-dev": {
-        "symfony/mime": "^7.4|^8.0"
+        "symfony/mime": "^7.4|^8.0",
+        "phpunit/phpunit": "^13.0",
+        "symfony/phpunit-bridge": "^7.4|^8.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Symfony\\Component\\Notifier\\Tests\\Transport\\": "Tests/"
+        }
     },
     "autoload": {
         "psr-4": { "Symfony\\Component\\Notifier\\Bridge\\Bluesky\\": "" },
