@@ -30,3 +30,6 @@ jobs:
 
       - name: Test
         run: make test PHP_VERSION=${{ matrix.php }} PHP=php CP=composer
+
+      - name: PHPStan
+        run: make php-stan-ci PHP_VERSION=${{ matrix.php }} PHP=php CP=composer
