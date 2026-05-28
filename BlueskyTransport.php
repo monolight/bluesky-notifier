@@ -231,6 +231,24 @@ final class BlueskyTransport extends AbstractTransport
             ];
         }
 
+        // Tags
+        // https://docs.bsky.app/docs/advanced-guides/post-richtext#rich-text-facets
+        $regex = '/(#\w+)/u';
+        foreach ($this->getMatchAndPosition($text, $regex) as $match) {
+            $facets[] = [
+                'index' => [
+                    'byteStart' => $match['start'],
+                    'byteEnd' => $match['end'],
+                ],
+                'features' => [
+                    [
+                        '$type' => 'app.bsky.richtext.facet#tag',
+                        'tag' => str_replace('#', '', $match['match']),
+                    ],
+                ],
+            ];
+        }
+
         return $facets;
     }
 

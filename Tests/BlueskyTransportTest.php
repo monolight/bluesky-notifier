@@ -366,6 +366,27 @@ final class BlueskyTransportTest extends TransportTestCase
         ];
     }
 
+    public function testParseFacetsHashtag(): void
+    {
+        $input = 'Check out #bluesky and #atproto';
+        $expected = [
+            [
+                'index' => ['byteStart' => 10, 'byteEnd' => 18],
+                'features' => [
+                    ['$type' => 'app.bsky.richtext.facet#tag', 'tag' => 'bluesky'],
+                ],
+            ],
+            [
+                'index' => ['byteStart' => 23, 'byteEnd' => 31],
+                'features' => [
+                    ['$type' => 'app.bsky.richtext.facet#tag', 'tag' => 'atproto'],
+                ],
+            ],
+        ];
+        $output = $this->parseFacets($input);
+        $this->assertEquals($expected, $output);
+    }
+
     /**
      * A small helper function to test BlueskyTransport::parseFacets().
      */
