@@ -233,17 +233,20 @@ final class BlueskyTransport extends AbstractTransport
 
         // Tags
         // https://docs.bsky.app/docs/advanced-guides/post-richtext#rich-text-facets
-        $regex = '/(#\w+)/u';
-        foreach ($this->getMatchAndPosition($text, $regex) as $match) {
+        // preg_match_all with PREG_OFFSET_CAPTURE gives correct byte offsets directly,
+        // avoiding the substring collision that getMatchAndPosition has when one tag is
+        // a prefix of another (e.g. #foo incorrectly matched inside #fooBar).
+        preg_match_all('/(#\w+)/u', $input, $tagMatches, \PREG_OFFSET_CAPTURE);
+        foreach ($tagMatches[1] as [$tag, $offset]) {
             $facets[] = [
                 'index' => [
-                    'byteStart' => $match['start'],
-                    'byteEnd' => $match['end'],
+                    'byteStart' => $offset,
+                    'byteEnd' => $offset + \strlen($tag),
                 ],
                 'features' => [
                     [
                         '$type' => 'app.bsky.richtext.facet#tag',
-                        'tag' => str_replace('#', '', $match['match']),
+                        'tag' => ltrim($tag, '#'),
                     ],
                 ],
             ];

@@ -366,20 +366,56 @@ final class BlueskyTransportTest extends TransportTestCase
         ];
     }
 
-    public function testParseFacetsHashtag(): void
+    public function testParseFacetsHashtagWithUrl(): void
     {
-        $input = 'Check out #bluesky and #atproto';
+        $input = 'Check https://example.com #bluesky';
         $expected = [
             [
-                'index' => ['byteStart' => 10, 'byteEnd' => 18],
+                'index' => ['byteStart' => 6, 'byteEnd' => 25],
+                'features' => [
+                    ['$type' => 'app.bsky.richtext.facet#link', 'uri' => 'https://example.com'],
+                ],
+            ],
+            [
+                'index' => ['byteStart' => 26, 'byteEnd' => 34],
                 'features' => [
                     ['$type' => 'app.bsky.richtext.facet#tag', 'tag' => 'bluesky'],
                 ],
             ],
+        ];
+        $output = $this->parseFacets($input);
+        $this->assertEquals($expected, $output);
+    }
+
+    public function testParseFacetsNoHashtags(): void
+    {
+        $input = 'No hashtags here, just plain text.';
+        $output = $this->parseFacets($input);
+        $this->assertEquals([], $output);
+    }
+
+    public function testParseFacetsMultipleHashtagsIncludingPrefixMatch(): void
+    {
+        // Verifies that a short tag (#foo) is not incorrectly matched inside a longer
+        // tag that starts with the same characters (#fooBar).
+        $input = '#foo #fooBar #fooBarBaz';
+        $expected = [
             [
-                'index' => ['byteStart' => 23, 'byteEnd' => 31],
+                'index' => ['byteStart' => 0, 'byteEnd' => 4],
                 'features' => [
-                    ['$type' => 'app.bsky.richtext.facet#tag', 'tag' => 'atproto'],
+                    ['$type' => 'app.bsky.richtext.facet#tag', 'tag' => 'foo'],
+                ],
+            ],
+            [
+                'index' => ['byteStart' => 5, 'byteEnd' => 12],
+                'features' => [
+                    ['$type' => 'app.bsky.richtext.facet#tag', 'tag' => 'fooBar'],
+                ],
+            ],
+            [
+                'index' => ['byteStart' => 13, 'byteEnd' => 23],
+                'features' => [
+                    ['$type' => 'app.bsky.richtext.facet#tag', 'tag' => 'fooBarBaz'],
                 ],
             ],
         ];
