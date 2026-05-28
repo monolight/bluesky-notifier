@@ -33,6 +33,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 final class BlueskyTransport extends AbstractTransport
 {
+    /** @var array<string, mixed> */
     private array $authSession = [];
     private ClockInterface $clock;
 
@@ -163,12 +164,13 @@ final class BlueskyTransport extends AbstractTransport
         }
 
         try {
-            $this->authSession = $response->toArray(false) ?? [];
+            $this->authSession = $response->toArray(false);
         } catch (DecodingExceptionInterface $e) {
             throw new TransportException('Unexpected response from bluesky server.', $response, 0, $e);
         }
     }
 
+    /** @return list<array<string, mixed>> */
     private function parseFacets(string $input): array
     {
         $facets = [];
@@ -232,6 +234,7 @@ final class BlueskyTransport extends AbstractTransport
         return $facets;
     }
 
+    /** @return list<array{start: int, end: int, match: string}> */
     private function getMatchAndPosition(AbstractString $text, string $regex): array
     {
         $output = [];
@@ -263,7 +266,7 @@ final class BlueskyTransport extends AbstractTransport
     /**
      * @param array<array{file: File, description: string}> $media
      *
-     * @return array<array{alt: string, image: array{$type: string, ref: array{$link: string}, mimeType: string, size: int}}>
+     * @return list<array{alt: string, image: array{'$type': string, ref: array{'$link': string}, mimeType: string, size: int}}>
      */
     private function uploadMedia(array $media): array
     {

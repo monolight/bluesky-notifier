@@ -16,11 +16,13 @@ use Symfony\Component\Notifier\Message\MessageOptionsInterface;
 
 final class BlueskyOptions implements MessageOptionsInterface
 {
+    /** @param array<string, mixed> $options */
     public function __construct(
         private array $options = [],
     ) {
     }
 
+    /** @return array<string, mixed> */
     public function toArray(): array
     {
         return $this->options;
